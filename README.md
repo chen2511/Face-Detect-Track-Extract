@@ -3,19 +3,18 @@
 ![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/Django.svg)
 
-## 介绍
+## 一、介绍
 
-这是一个人脸检测跟踪和提取库，基于`MTCNN`和`SORT`跟踪算法实现。
+这是一个人脸检测跟踪和提取库，基于`MTCNN`和`SORT`跟踪算法实现。本项目主要贡献是，后半部分的人脸图像对齐、提取。
 
-基于：[Linzaer/Face-Track-Detect-Extract: 💎 Detect , track and extract the optimal face in multi-target faces (exclude side face and select the optimal face). (github.com)](https://github.com/Linzaer/Face-Track-Detect-Extract)
+基于：
+> [Linzaer/Face-Track-Detect-Extract: 💎 Detect , track and extract the optimal face in multi-target faces (exclude side face and select the optimal face). (github.com)](https://github.com/Linzaer/Face-Track-Detect-Extract)
 
-### 实现思路：
+### 1、实现思路：
 
-`MTCNN`实现人脸检测
+`MTCNN`实现人脸检测，`SORT`实现多目标跟踪
 
-`SORT`实现多目标跟踪
-
-### 依赖:
+### 2、依赖:
 
 - python 3.7.*
 
@@ -35,7 +34,7 @@ six==1.16.0
 tensorflow==1.15.0
 ```
 
-### 目录说明：
+### 3、目录说明：
 
 ```
 .
@@ -79,7 +78,7 @@ tensorflow==1.15.0
 
 主要看 `start.py`即可
 
-### 效率
+### 4、效率
 
 显卡：`TITAN Xp`
 
@@ -87,7 +86,7 @@ tensorflow==1.15.0
 
 速度：20帧
 
-## 运行
+## 二、运行
 
 - 输入视频：
 
@@ -105,12 +104,12 @@ output文件夹内有：一部分是视频（框出人脸），另一部分是�
 
 
 
-### 调试运行：
+### 1、调试运行：
 
 文件夹根目录有一个 `Frame.jpg`缓存图像，`vscode`中打开该图像，可以随着代码运行实时刷新该图像，近似做到 `imshow`
 
 
 
-## 结果
+## 三、结果
 ![alt text](output/example/example.gif)
 
