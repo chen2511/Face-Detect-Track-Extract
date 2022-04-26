@@ -1,0 +1,13 @@
+__pycache__
+视频仓库
+
+input_videos/9-CAHxo8t-c.mp4
+
+logs/MOT/*
+
+output/images/*
+output/json/*
+output/videos/*
+
+*.jpg
+!output/Frame.jpg
