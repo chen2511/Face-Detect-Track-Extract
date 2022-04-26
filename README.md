@@ -112,6 +112,5 @@ output文件夹内有：一部分是视频（框出人脸），另一部分是�
 
 
 ## 结果
-![alt text](https://raw.githubusercontent.com/wiki/Linzaer/Face-Track-Detect-Extract/pic4.gif "scene 1")
-![alt text](https://raw.githubusercontent.com/wiki/Linzaer/Face-Track-Detect-Extract/pic5.jpg "faces extracted")
+![alt text](output/example/example.gif)
 
