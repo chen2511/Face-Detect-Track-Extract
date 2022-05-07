@@ -1,12 +1,15 @@
 import argparse
 import os
+from pprint import pp
 from time import time
 from time import sleep
+from typing import List
 from tqdm import tqdm
 
 import detect_align.detect_face as detect_face
 import cv2
 import numpy as np
+from tracker.kalman_tracker import KalmanBoxTracker
 
 import post_processed as pProcess
 """
@@ -100,6 +103,7 @@ def main():
 
                 # 为了让每个视频的 人脸 ID 重新刷新，就重新初始化了跟踪器
                 tracker = Sort()                # 创建 SORT tracker 实例
+                KalmanBoxTracker.count = 0      # 重置类变量，这样每个视频的人脸会从 0 开始，
 
                 logger.info('即将从视频[ {} / {} ]中检测人脸数据:【 {} 】'.format(video_ID, video_count, source_video_name))
 
@@ -177,7 +181,7 @@ def main():
                                     det[2] = np.minimum(det[2] + margin, img_size[1])
                                     det[3] = np.minimum(det[3] + margin, img_size[0])
                                     face_list.append(item)
-
+                                    
                                     # face cropped
                                     bb = np.array(det, dtype=np.int32)
 
@@ -220,9 +224,14 @@ def main():
                         y1 = int(d[1] / scale_rate)
                         x2 = int(d[2] / scale_rate)
                         y2 = int(d[3] / scale_rate)
+
+                        """
+                            对齐，防止越界，输出正方形
+                        """
+                        x1, y1, x2, y2 = pProcess.align_face([x1, y1, x2, y2], source_video_width, source_video_height, margin)
                         
                         ff_temp = {
-                            "face_id": "%04d" % d[4], 
+                            "face_id": "%05d" % d[4], 
                             "count": "%05d" % jsWriter.get_count_4_faceID(frame_ID, d[4]), 
                             "position": [x1,y1,x2,y2]        # x1, y1, x2, y2
                         }
@@ -269,6 +278,7 @@ def main():
                     pbar.update(1)
                     # end while
 
+                del tracker
                 t_save_json_name = jsWriter.save_json_name
                 jsWriter.close()
                 logger.info("人脸位置数据已写入 Json 文件 >>>>>> ：【 %s 】" % t_save_json_name)  

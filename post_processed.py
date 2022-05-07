@@ -4,13 +4,59 @@ import numpy as np
 from tqdm import tqdm
 
 from my_utils import JsonUtils
+
+def align_face(position: List, frame_width, frame_height, margin = 10): 
+    """
+        对齐人脸，防止越界，变成正方形
+    """
+    [x1, y1, x2, y2] = position
+
+    # 收缩一点，因为原本有一个 margin的扩大
+    shink_size = margin 
+    x1 = max(x1 + shink_size, 0)
+    y1 = max(y1 + shink_size, 0)
+    x2 = min(x2 - shink_size, frame_width)
+    y2 = min(y2 - shink_size, frame_height)
+
+    # 正式计算
+    face_width = x2 - x1
+    face_height = y2 - y1
+    max_edge = max(face_height, face_width)
+
+    x_padding = max_edge - face_width
+    y_padding = max_edge - face_height
+
+    # 先直接强行补成正方形
+    x1 -= x_padding // 2
+    y1 -= y_padding // 2
+    x2 = x1 + max_edge
+    y2 = y1 + max_edge
+
+    # 然后越界就平移回来
+    # 只考虑x的一边越界，不考虑两边都越界
+    if(x1 < 0):
+        x2 = x2 - x1
+        x1 = 0
+    elif(x2 >= frame_width):
+        x1 = x1 - (x2 - frame_width + 1)
+        x2 = frame_width - 1
+
+    if(y1 < 0):
+        y2 = y2 - y1
+        y1 = 0
+    elif(y2 >= frame_height):
+        y1 = y1 - (y2 - frame_height + 1)
+        y2 = frame_height - 1
+
+    assert x2 - x1 == y2 - y1, "仍然不为正方形"
+
+    return x1, y1, x2, y2
  
 def detect_background_4frame():
     """
         Test
     """
     return 
-
     #读入图像
     video = cv2.VideoCapture("E:\\BaiduNetdiskDownload\\无用\\4CRKa9OoynE.mp4")
     videoIsOpen=video.isOpened
@@ -51,36 +97,18 @@ def detect_background_4frame():
     
     cv2.waitKey(0)
 
-
 def detect_background_4face():
-    """
-        TODO
-    """
     pass
 
 def get_frameinfo_from_json(jsonfile_name: str) -> Dict:
     """
-        TODO 根据视频名字（json），返回这个处理这个视频后的信息。
+        根据视频名字（json），返回这个处理这个视频后的信息。
     """
     return JsonUtils.load_json(jsonfile_name)
 
 def judge_face_size(face = None, min_size : int = 40) -> bool:
     """
-        TODO 判断人脸是否太小
-    """
-    pass
-
-def judge_background(face = None) -> bool:
-    """
-        TODO 判断这个人脸是不是背景
-            需要考虑计算量的问题
-    """
-    pass
-
-
-def align_face(face = None): 
-    """
-        TODO 对齐人脸，变成正方形这种，这一部分可能需要问师兄具体的大小
+        判断人脸是否太小
     """
     pass
 
@@ -88,6 +116,7 @@ def judge_face_total_frames():
     """
         检查文件夹，太长的分开，太短的删除
     """
+    pass
 
 
 def process_single_video(video_path, json_path, output_dir):
@@ -111,41 +140,29 @@ def process_single_video(video_path, json_path, output_dir):
         if frame is None:
             break
 
-        # 0、背景检测算法（全帧做）
-        detect_background_4frame()
+        # 0、背景检测算法（全帧做）   = 不做
+        # detect_background_4frame()
 
         # 获取帧id，当前帧人脸信息
         frame_id = frame_info["frame_id"]
         faces_info = frame_info["face_info"]
 
         for face in faces_info:
+            # 输出文件路径， 视频名字/人脸ID/帧序号.jpg
             image_dir = '%s/%s/' % (output_dir, face["face_id"])
             img_name = face["count"] + '.jpg'
-
             JsonUtils.mkdir(image_dir)
-            # cropped = img[upper:lower, left:right]
+
             x1 = face["position"][0]
             y1 = face["position"][1]
             x2 = face["position"][2]
             y2 = face["position"][3]
-            """
-                注意：这里可能会越界，因为检测算法中已经 +- 了一个 margin，相当于放大了范围
-                align_face 里面需要 做一下
-            """
+            # 0、背景检测算法，检测当前人脸是否为背景 = 不做
+            # detect_background_4face()
 
+            # x1, y1, x2, y2 = align_face([x1, y1, x2, y2], frame_width, frame_height)
 
-            # 1、当前人脸太小，可能可以跳过
-            judge_face_size()
-
-            # 2、背景检测算法，检测当前人脸是否为背景
-            detect_background_4face()
-
-            # 3、输出前准备：对齐（这里的输入图像可能不是正方形）
-            align_face()
-
-            # 4、输出人脸，保存结果：一个视频一个大文件夹，然后里面按ID分成不同文件夹
-            
-            
+            # 1、输出人脸，保存结果：一个视频一个大文件夹，然后里面按ID分成不同文件夹
             cropped = frame[y1:y2, x1:x2]
 
             cv2.imwrite(image_dir + img_name, cropped)
@@ -155,12 +172,13 @@ def process_single_video(video_path, json_path, output_dir):
     # end frames_info
     pbar.close()
 
-    # 5、最后检查每个ID对应的人脸长度
+    # 2、最后检查每个ID对应的人脸帧长度和帧大小；1、先删除少的，分开多的 2、判断大小 96*96（太小的删除整个id的人脸，大的 resize）
+    # TODO 2
     judge_face_total_frames()
 
 
 
 
 if __name__ == "__main__":
-    # process_single_video("input_videos/质量高_40s.mp4", "./output/json/质量高_40s.json", "./output/images/质量高_40s")
+    process_single_video("input_videos/质量高_40s.mp4", "./output/json/质量高_40s.json", "./output/images/质量高_40s")
     process_single_video("input_videos/9-CAHxo8t-c.mp4", "./output/json/9-CAHxo8t-c.json", "./output/images/9-CAHxo8t-c")

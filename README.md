@@ -7,7 +7,7 @@
 
 这是一个人脸检测跟踪和提取库，基于`MTCNN`和`SORT`跟踪算法实现。本项目主要贡献是，后半部分的人脸图像对齐、提取。
 
-基于：
+基于（特别感谢）：
 > [Linzaer/Face-Track-Detect-Extract: 💎 Detect , track and extract the optimal face in multi-target faces (exclude side face and select the optimal face). (github.com)](https://github.com/Linzaer/Face-Track-Detect-Extract)
 
 ### 1、实现思路：
