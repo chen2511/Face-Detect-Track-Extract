@@ -1,6 +1,5 @@
 import argparse
 import os
-from pprint import pp
 from time import time
 from time import sleep
 from typing import List
@@ -111,13 +110,16 @@ def main():
                 capture = cv2.VideoCapture(source_video_name)
                 
                 # 要保存的视频的名字
-                processed_video_name = video_output_path + source_video_name.split('/')[1][:-4] + '_processed' + source_video_name[-4:]
+                processed_video_name = video_output_path + source_video_name[:-4] + '_processed' + source_video_name[-4:]
                 
                 # 构造视频写入器
                 videoWriter = None
+                
                 if not no_display:
                     videoWriter, source_video_width, source_video_height = my_utils.create_videoWriter(capture, processed_video_name)
-                
+                else:
+                    source_video_width = capture.get(cv2.CAP_PROP_FRAME_WIDTH)
+                    source_video_height = capture.get(cv2.CAP_PROP_FRAME_HEIGHT)
                 # 构造进度条
                 tatal_frames_current_video = int(capture.get(7))
                 pbar = tqdm(total=tatal_frames_current_video)

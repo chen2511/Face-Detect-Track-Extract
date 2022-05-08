@@ -2,6 +2,7 @@ filterpy==1.4.5
 numba==0.55.1
 numpy==1.21.1
 opencv_python==4.5.5.64
-scikit_learn==1.0.2
+scikit_learn==0.21.2
 six==1.16.0
 tensorflow==1.15.0
+tqdm
