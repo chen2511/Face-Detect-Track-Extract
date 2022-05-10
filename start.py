@@ -286,7 +286,7 @@ def main():
                 logger.info("人脸位置数据已写入 Json 文件 >>>>>> ：【 %s 】" % t_save_json_name)  
                 
                 logger.info("即将开始提取人脸图片： 【 %s 】......" % t_save_json_name)
-                pProcess.process_single_video(source_video_name, t_save_json_name, base_output_path + '/images/' + filename[:-4])  
+                pProcess.process_single_video(source_video_name, t_save_json_name, base_output_path + '/images/' + filename[:-4], base_output_path + '/results/' + filename[:-4])  
                 print('*' * 100)
 
 
