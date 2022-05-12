@@ -5,7 +5,6 @@ import numpy as np
 from tqdm import tqdm
 import os
 from PIL import Image
-import shutil
 
 from my_utils import JsonUtils
 
@@ -54,10 +53,10 @@ def align_face(position: List, frame_width, frame_height, margin = 10):
 
     assert x2 - x1 == y2 - y1, "仍然不为正方形"
     # 部分人脸占整个屏幕的
-    x1 = max(x1, 0)
-    y1 = max(y1, 0)
-    x2 = min(x2, frame_width - 1)
-    y2 = min(y2, frame_height - 1)
+    x1 = int(max(x1, 0))
+    y1 = int(max(y1, 0))
+    x2 = int(min(x2, frame_width - 1))
+    y2 = int(min(y2, frame_height - 1))
 
     return x1, y1, x2, y2
  
@@ -115,101 +114,41 @@ def get_frameinfo_from_json(jsonfile_name: str) -> Dict:
     """
     return JsonUtils.load_json(jsonfile_name)
 
-def judge_face_size(face = None, min_size : int = 40) -> bool:
-    """
-        判断人脸是否太小
-    """
-    pass
 
-def judge_face_total_frames(output_dir, result_dir):
+def judge_face_total_frames(output_dir):
     """
         检查每个ID对应的人脸帧长度和帧大小
     """
-# 选取大小合适的图片 移动到result文件夹
-    if os.path.exists(result_dir):
-        pass
-    else:
-        os.makedirs(result_dir)
     
     for i in os.listdir(output_dir): # 遍历视频文件夹 得到单人文件夹sub_dir
         sub_dir = os.path.join(output_dir, i)
         # print(sub_dir)
-        if os.path.isdir(sub_dir): # 如果sub_dir是文件夹 遍历sub_dir 得到单张图片pic
-            res_dir = os.path.join(result_dir, i)
-            if os.path.exists(res_dir):
-                pass
-            else:
-                os.makedirs(res_dir)
-            
+        if os.path.isdir(sub_dir): # 如果sub_dir是文件夹 遍历sub_dir 得到单张图片pic           
             for j in os.listdir(sub_dir):
                 pic = os.path.join(sub_dir, j)
-                res = os.path.join(res_dir, j)
                 if pic.split('.')[-1] == 'jpg': # 如果pic是图片 读取pic
-                    # print(pic)
                     img = Image.open(pic)
                     imgSize = img.size
                     img.close()
-                    # print(imgSize)
                     if imgSize[0] > 96 or imgSize[1] > 96:
                         # 图片进行resize操作
-                        img = Image.open(pic)
-                        resize_pic = img.resize((128,128), Image.ANTIALIAS)
-                        resize_pic.save(res)
-                        img.close()
+                        # img = Image.open(pic)
+                        # resize_pic = img.resize((128,128), Image.ANTIALIAS)
+                        # resize_pic.save(res)
+                        # img.close()
                         # shutil.copyfile(pic,res) # 将pic移动到result文件夹
-                    else:
-                        # os.remove(pic) # 删除文件
                         pass
-
-# 判断文件夹大小 分割大文件夹
-    for k in os.listdir(result_dir):
-        check_dir = os.path.join(result_dir, k)
-        # print(check_dir)
-        num = len(os.listdir(check_dir))
-        # print(k)
-        # print(num)
-        if num <= 50:
-            for file in os.listdir(check_dir):
-                #进入下一个文件夹中进行删除
-                os.remove(os.path.join(check_dir,file))
-            #如果是空文件夹，直接删除
-            os.rmdir(check_dir)
-            # print(check_dir,"文件数",num,"删除成功")
-
-        t = 0
-        while num > 200: # 如果文件夹中图片数量超过200 将其分割
-            # print(k)
-            k_split = k+'_'+str(t)
-            # print(k_split)
-            mv_dir = os.path.join(result_dir, k_split)
-            if os.path.exists(mv_dir):
-                pass
-            else:
-                os.makedirs(mv_dir)
-
-            # '''
-            # test
-            # '''
-            # for root, dirs, files in os.walk(check_dir):
-            #     files.sort()
-            #     print(111)
-
-            cnt = 0
-            for pics in sorted(os.listdir(check_dir)):
-                pic = os.path.join(check_dir, pics)
-                mv_pic = os.path.join(mv_dir, pics)
-                shutil.move(pic, mv_pic)
-                cnt += 1
-                if cnt >= 200:
-                    break
-            num = len(os.listdir(check_dir))
-            t = t+1
-        
-        if t != 0:
-            os.rename(check_dir, os.path.join(result_dir, k+'_'+str(t)))
+                    else:
+                        for file in os.listdir(sub_dir):
+                            #进入下一个文件夹中进行删除
+                            os.remove(os.path.join(sub_dir,file))
+                        #如果是空文件夹，直接删除
+                        os.rmdir(sub_dir)
+                        # print(sub_dir,"文件夹删除成功")
+                        break
 
 
-def process_single_video(video_path, json_path, output_dir, result_dir):
+def process_single_video(video_path, json_path, output_dir):
     # 读取 json 数据
     json_data = get_frameinfo_from_json(json_path)
     capture = cv2.VideoCapture(video_path)
@@ -243,14 +182,13 @@ def process_single_video(video_path, json_path, output_dir, result_dir):
             img_name = face["count"] + '.jpg'
             JsonUtils.mkdir(image_dir)
 
+            
             x1 = face["position"][0]
             y1 = face["position"][1]
             x2 = face["position"][2]
             y2 = face["position"][3]
             # 0、背景检测算法，检测当前人脸是否为背景 = 不做
             # detect_background_4face()
-
-            # x1, y1, x2, y2 = align_face([x1, y1, x2, y2], frame_width, frame_height)
 
             # 1、输出人脸，保存结果：一个视频一个大文件夹，然后里面按ID分成不同文件夹
             cropped = frame[y1:y2, x1:x2]
@@ -262,13 +200,12 @@ def process_single_video(video_path, json_path, output_dir, result_dir):
     # end frames_info
     pbar.close()
 
-    # 2、最后检查每个ID对应的人脸帧长度和帧大小；1、先删除少的，分开多的 2、判断大小 96*96（太小的删除整个id的人脸，大的 resize）
-    # TODO 2
-    judge_face_total_frames(output_dir, result_dir)
+    # 2、最后检查每个ID对应的人脸帧大小；判断大小 96*96
+    judge_face_total_frames(output_dir)
 
 
 
 
 if __name__ == "__main__":
-    process_single_video("input_videos/质量高_40s.mp4", "./output/json/质量高_40s.json", "./output/images/质量高_40s","./output/results/质量高_40s")
-    # process_single_video("input_videos/9-CAHxo8t-c.mp4", "./output/json/9-CAHxo8t-c.json", "./output/images/9-CAHxo8t-c","./output/results/质量高_40s")
+    process_single_video("input_videos/-6G6CZT7h4k.mp4", "./output/json/-6G6CZT7h4k.json", "./output/images/-6G6CZT7h4k")
+    # process_single_video("input_videos/9-CAHxo8t-c.mp4", "./output/json/9-CAHxo8t-c.json", "./output/images/9-CAHxo8t-c")

@@ -34,6 +34,8 @@ six==1.16.0
 tensorflow==1.15.0
 ```
 
+> 如果环境还是不匹配，推荐先安装 `tensorflow==1.15`的包，再安装 `scikit-learn==0.21.2`的包，再安装其他包即可。
+
 ### 3、目录说明：
 
 ```
@@ -45,10 +47,8 @@ tensorflow==1.15.0
 │   ├── detect_face.py
 │   ├── __init__.py
 │   └── __pycache__
-├── example.json					# 输出 人脸信息
-├── Frame.jpg
-├── input_videos					# 会处理这个文件夹里面的所有视频
-│   └── example.mp4
+├── input_videos					# 默认会处理这个文件夹里面的所有视频
+├── judge_face.py                   # 测试代码
 ├── lib								# 作者提供的一些工具库
 │   ├── face_utils.py
 │   ├── __init__.py
@@ -58,8 +58,12 @@ tensorflow==1.15.0
 ├── logs							# 日志文件
 │   └── MOT
 ├── output							# 输出文件夹
-│   ├── videos							# 处理后的视频
-│   └── example							# 单个视频裁剪出来的人脸图片
+│   ├── example                         # 例子
+│   ├── Frame.jpg                       # 可用于调试实时显示的
+│   ├── images                          # 单个视频裁剪出来的人脸图片
+│   ├── json                            # 单个视频处理后的json文件
+│   └── videos                          # 处理后的视频	需要去除参数 --no_display才会保存视频	
+├── post_processed.py               # （主要代码2）后处理部分，对齐，筛选人脸
 ├── project_root_dir.py
 ├── README.md						
 ├── requirements.txt				# 依赖库说明
@@ -69,22 +73,19 @@ tensorflow==1.15.0
 │   ├── kalman_tracker.py				# ...
 │   ├── __pycache__
 │   └── sort.py							# 跟踪算法主要实现
-├── start.py						# ！！！程序入口
+├── start.py						# ！！！程序入口（主要代码1）
 ├── my_utils.py						# 工具包：视频写入工具
-└── 视频仓库						 # 视频仓库
-    ├── 1_Hours Of _Harassment' In NYC!.mp4
-    └── 2_Obama.mp4
+└── 视频仓库						 # 视频仓库：缓存其他视频
+
 ```
 
 主要看 `start.py`即可
 
 ### 4、效率
 
-显卡：`TITAN Xp`
-
 显存：`1.1 GB`
 
-速度：20帧
+速度：720P 20帧+-
 
 ## 二、运行
 
@@ -94,7 +95,7 @@ tensorflow==1.15.0
 
 * 运行命令 :
 ```sh
-export CUDA_VISIBLE_DEVICES=0; python start.py --videos_dir="input_videos" --no_display 
+export CUDA_VISIBLE_DEVICES=0; python start.py --no_display --videos_dir="input_videos" 
 ```
 * 输出文件夹
 

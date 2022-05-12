@@ -68,7 +68,7 @@ def main():
             print('*' * 100)
             print('*' * 100)
             print('*' * 100)
-            file_list = os.listdir(videos_dir)
+            file_list = sorted(os.listdir(videos_dir))
             video_count = len(file_list)
             logger.info('要处理的视频文件【共有： %d 个】:' % video_count)
             # 视频太多的话 就不逐个打印名字了
@@ -286,7 +286,7 @@ def main():
                 logger.info("人脸位置数据已写入 Json 文件 >>>>>> ：【 %s 】" % t_save_json_name)  
                 
                 logger.info("即将开始提取人脸图片： 【 %s 】......" % t_save_json_name)
-                pProcess.process_single_video(source_video_name, t_save_json_name, base_output_path + '/images/' + filename[:-4], base_output_path + '/results/' + filename[:-4])  
+                pProcess.process_single_video(source_video_name, t_save_json_name, base_output_path + '/images/' + filename[:-4])  
                 print('*' * 100)
 
 
