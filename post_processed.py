@@ -119,8 +119,13 @@ def judge_face_total_frames(output_dir):
     """
         检查每个ID对应的人脸帧长度和帧大小
     """
+    person_list = os.listdir(output_dir)
+    person_nums = len(person_list)
+    print("筛选文件夹：")
+    pbar = tqdm(total=person_nums)
     
-    for i in os.listdir(output_dir): # 遍历视频文件夹 得到单人文件夹sub_dir
+    
+    for i in person_list: # 遍历视频文件夹 得到单人文件夹sub_dir
         sub_dir = os.path.join(output_dir, i)
         # print(sub_dir)
         if os.path.isdir(sub_dir): # 如果sub_dir是文件夹 遍历sub_dir 得到单张图片pic           
@@ -146,9 +151,13 @@ def judge_face_total_frames(output_dir):
                         os.rmdir(sub_dir)
                         # print(sub_dir,"文件夹删除成功")
                         break
+        pbar.update(1)
+    
+    pbar.close()
 
 
 def process_single_video(video_path, json_path, output_dir):
+    JsonUtils.mkdir(output_dir)
     # 读取 json 数据
     json_data = get_frameinfo_from_json(json_path)
     capture = cv2.VideoCapture(video_path)
