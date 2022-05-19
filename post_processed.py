@@ -15,11 +15,11 @@ def align_face(position: List, frame_width, frame_height, margin = 10):
     [x1, y1, x2, y2] = position
 
     # 0.收缩一点，因为原本有一个 margin的扩大
-    shink_size = margin 
-    x1 = max(x1 + shink_size, 0)
-    y1 = max(y1 + shink_size, 0)
-    x2 = min(x2 - shink_size, frame_width - 1)
-    y2 = min(y2 - shink_size, frame_height - 1)
+    # shink_size = margin 
+    # x1 = max(x1 + shink_size, 0)
+    # y1 = max(y1 + shink_size, 0)
+    # x2 = min(x2 - shink_size, frame_width - 1)
+    # y2 = min(y2 - shink_size, frame_height - 1)
 
     # 1.正式计算
     face_width = x2 - x1
