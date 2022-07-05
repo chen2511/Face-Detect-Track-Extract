@@ -1,7 +1,11 @@
 import os
 import my_utils
-import moviepy
 from moviepy.editor import AudioFileClip
+from lib.utils import Logger
+from tqdm import tqdm
+
+logger = Logger()
+pbar = None
 
 '''
 获取视频中的音频
@@ -17,7 +21,8 @@ base_audio_dir = './output/audio/'
 base_images_dir = './output/images/'
 '''
 # 视频源文件地址   会从这些文件夹里面查找原视频
-    必须以  video  开头
+    必须以  video  开头；
+    当然也可以添加其他目录，添加到下面的列表就好了
 '''
 base_input_dir = []
 for dir in os.listdir('.'):
@@ -32,7 +37,17 @@ def main():
     # 获取audio的json文件列表
     audio_json_list = sorted(os.listdir(base_audio_json_dir))
 
+    print('*' * 100)
+    print('*' * 100)
+    print('*' * 100)
+    video_total = len(video_json_list)
+    logger.info('要处理的视频文件【共有： %d 个】:' % video_total)
+    print('*' * 100)
+    print('*' * 100)
+    print('*' * 100)
+
     # 处理每一个视频
+    video_count = 0
     for cur in video_json_list:
         '''
             1、拿到一个处理好的视频json文件，检查是否可以继续处理，获取音频:
@@ -40,17 +55,21 @@ def main():
                 2）、能否找到原视频
         '''
         if cur in audio_json_list:
-            print(cur, '已经处理')
+            video_count += 1
+            logger.info(f'[ {video_count} / {video_total} ]  {cur} 已经处理完成')
             continue
         
         source_video = check_video(cur[:-5]+'.mp4')
         if source_video == None: # 没找到原视频
-            print(cur, '没找到原视频')
+            video_count += 1
+            logger.error(f'[ {video_count} / {video_total} ]  {cur} 没找到原视频')
             continue
         '''
             2、开始处理
                 逐帧处理，获取id信息，最终获得每个id在原视频中的开始帧和结束帧
         '''
+        video_count += 1
+        logger.info(f'[ {video_count} / {video_total} ]  {cur} 已找到原视频，即将开始处理...')
         # 图片json目录
         images_json = base_video_json_dir + cur
         # 图片保存目录
@@ -88,6 +107,8 @@ def main():
                         }
         content['ID_count'] = len(content['list'])
         my_utils.JsonUtils.save_json(content, audio_json)
+        global pbar
+        pbar = tqdm(total=content['ID_count'])
 
         '''
             切取音频
@@ -104,6 +125,7 @@ def check_video(video_name):
     return None
 
 def cut(content, audio_dir):
+    global pbar
     
     source_video = content['source_video']
     fps = content['fps']
@@ -118,17 +140,22 @@ def cut(content, audio_dir):
         end = content['list'][id]['end']
         start_time = round(start / fps, 2)  
         end_time = round(end / fps, 2)     
-        start = max(0, start_time)
+        start_time = max(0, start_time)
         end_time = min(end_time, audio_clip.end)
 
 
         if end_time <= start_time:
+            pbar.update(1)
             skip_count += 1
             continue 
 
-        audio_clip.subclip(start_time, end_time).write_audiofile(f'{audio_dir}/{id}.wav')
+        temp_clip = audio_clip.subclip(start_time, end_time)
+        temp_clip.write_audiofile(f'{audio_dir}/{id}.wav', logger=None)
         audio_count += 1
-    print(f'已提取视频 {source_video} 中的音频 {audio_count + skip_count}个，成功{audio_count}个，跳过{skip_count}个（时间不符）')
+        pbar.update(1)
+    pbar.close()
+    logger.info(f'已提取视频 {source_video} 中的音频 {audio_count + skip_count} 个，成功{audio_count} 个，跳过{skip_count} 个（时间太短、不符）')
+    print('')
 
 
 if __name__=='__main__':
