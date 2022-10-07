@@ -216,5 +216,6 @@ def process_single_video(video_path, json_path, output_dir):
 
 
 if __name__ == "__main__":
-    process_single_video("input_videos/-6G6CZT7h4k.mp4", "./output/json/-6G6CZT7h4k.json", "./output/images/-6G6CZT7h4k")
+    process_single_video("input_videos/质量高_40s.mp4", "./output/json/质量高_40s.json", "./output/images/质量高_40s")
+    # process_single_video("video_101-200/0iLPwIyJ2m8.mp4", "./output/json/0iLPwIyJ2m8.json", "./output/images/0iLPwIyJ2m8")
     # process_single_video("input_videos/9-CAHxo8t-c.mp4", "./output/json/9-CAHxo8t-c.json", "./output/images/9-CAHxo8t-c")

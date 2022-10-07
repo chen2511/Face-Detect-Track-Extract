@@ -1,4 +1,3 @@
-from typing_extensions import Self
 import warnings
 import cv2
 import numpy as np

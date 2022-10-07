@@ -5,6 +5,8 @@ input_videos/*.mp4
 video/
 video_2/
 video_101-200
+video_2001-3000
+video_3001-4000
 
 logs/MOT/*
 
@@ -16,3 +18,5 @@ output/audio_json/*
 
 *.jpg
 !output/Frame.jpg
+
+statistics_audio.json
