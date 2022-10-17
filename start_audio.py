@@ -3,6 +3,7 @@ import my_utils
 from moviepy.editor import AudioFileClip
 from lib.utils import Logger
 from tqdm import tqdm
+import argparse
 
 logger = Logger()
 pbar = None
@@ -12,26 +13,50 @@ pbar = None
     以音频为准(切分出音频必定有图片)， 存放目录：./output/audio/*视频名字*/*ID*
 
 '''
-
-# json 输出地址
-base_video_json_dir = './output/json/'
-base_audio_json_dir = './output/audio_json/'
-# 媒体文件输出地址
-base_audio_dir = './output/audio/'
-base_images_dir = './output/images/'
-'''
-# 视频源文件地址   会从这些文件夹里面查找原视频
-    必须以  video  开头；
-    当然也可以添加其他目录，添加到下面的列表就好了
-'''
-base_input_dir = []
-for dir in os.listdir('.'):
-    if dir.startswith('video'):
-        base_input_dir.append(dir)
-
-my_utils.JsonUtils.mkdir(base_audio_json_dir)
+parser = argparse.ArgumentParser()
+parser.add_argument("--database", type=str, help='要处理的数据库', default='unlabel')
+# 1、unlabel，什么都不动
+# 2、mosei：需要设置路径，45行+的位置
+args = parser.parse_args()
 
 def main():
+    '''获取基本数据路径'''
+    # json 输出地址
+    base_video_json_dir = './output/json/'
+    base_audio_json_dir = './output/audio_json/'
+    # 媒体文件输出地址
+    base_audio_dir = './output/audio/'
+    base_images_dir = './output/images/'
+    '''
+    # 视频源文件地址   会从这些文件夹里面查找原视频
+        必须以  video  开头；
+        当然也可以添加其他目录，添加到下面的列表就好了
+    '''
+    base_input_dir = []
+    for dir in os.listdir('.'):
+        if dir.startswith('video'):
+            base_input_dir.append(dir)
+    # 有的视频有问题，还有重复，尽量从前面开始找
+    base_input_dir.sort()
+    base_input_dir.remove('video-v1')
+    base_input_dir.remove('video-v2')
+    base_input_dir.append('video-v1')
+    base_input_dir.append('video-v2')
+
+    # 数据库1：mosei，如果有其他数据库需要改下面的路径
+    if args.database == 'mosei':
+        # 1 mosei 数据处理的输出文件夹
+        database_output_dir = './output/mosei/video/'
+        base_video_json_dir = database_output_dir + 'json/'
+        base_audio_json_dir = database_output_dir + 'audio_json/'
+        base_audio_dir = database_output_dir + 'audio/'
+        base_images_dir = database_output_dir + 'images/'
+        # 2 视频原文件地址
+        base_input_dir = ['/public/home/zwchen209/Mosei/Combined']
+
+
+    my_utils.JsonUtils.mkdir(base_audio_json_dir)
+
     # 获取video的json文件列表
     video_json_list = sorted(os.listdir(base_video_json_dir))
     # 获取audio的json文件列表
@@ -59,7 +84,7 @@ def main():
             logger.info(f'[ {video_count} / {video_total} ]  {cur} 已经处理完成')
             continue
         
-        source_video = check_video(cur[:-5]+'.mp4')
+        source_video = check_video(cur[:-5]+'.mp4', base_input_dir)
         if source_video == None: # 没找到原视频
             video_count += 1
             logger.error(f'[ {video_count} / {video_total} ]  {cur} 没找到原视频')
@@ -69,7 +94,6 @@ def main():
                 逐帧处理，获取id信息，最终获得每个id在原视频中的开始帧和结束帧
         '''
         video_count += 1
-        logger.info(f'[ {video_count} / {video_total} ]  {cur} 已找到原视频，即将开始处理...')
         # 图片json目录
         images_json = base_video_json_dir + cur
         # 图片保存目录
@@ -82,6 +106,10 @@ def main():
 
         # 保存 每一个id的人的 开始帧和结束帧
         images_info = my_utils.JsonUtils.load_json(images_json)
+        frame_size = images_info['frame_size']
+        fps = images_info['fps']
+        logger.info(f'[ {video_count} / {video_total} ]  {cur} 已找到原视频【分辨率{frame_size}, fps:{fps}】，即将开始处理...')
+
         content = {
             'source_video': source_video,
             'fps': images_info['fps'],
@@ -117,7 +145,7 @@ def main():
 
 
 # 检查是否有video源文件
-def check_video(video_name):
+def check_video(video_name, base_input_dir):
     for path in base_input_dir:
         video = os.path.join(path, video_name)
         if os.path.exists(video):
@@ -160,3 +188,13 @@ def cut(content, audio_dir):
 
 if __name__=='__main__':
     main()
+
+    '''
+        运行方式：
+        1、无标签，提取音频：
+                python start_audio.py
+        2、其他数据库：（如果增加其他数据库，需要在代码内部指导位置，46行+）
+            2.1 mosei:   
+                python start_audio.py --database mosei
+    
+    '''

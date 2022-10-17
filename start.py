@@ -333,3 +333,18 @@ def parse_args():
 
 if __name__ == '__main__':
     main()
+
+'''
+运行方式：
+1、无标签
+export CUDA_VISIBLE_DEVICES=0; python start.py --no_display --videos_dir video_1001-2000
+
+2、有标签
+    2.1 mosei
+        export CUDA_VISIBLE_DEVICES=0; python start.py --no_display --videos_dir /public/home/zwchen209/Mosei/Combined --output_path ./output/mosei/video 
+
+
+
+GPU-Mem 1542 MB
+PID: 233
+'''
