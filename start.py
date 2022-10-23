@@ -2,7 +2,6 @@ import argparse
 import os
 from time import time
 from time import sleep
-from typing import List
 from tqdm import tqdm
 
 import detect_align.detect_face as detect_face
@@ -343,8 +342,10 @@ export CUDA_VISIBLE_DEVICES=0; python start.py --no_display --videos_dir video_1
     2.1 mosei
         export CUDA_VISIBLE_DEVICES=0; python start.py --no_display --videos_dir /public/home/zwchen209/Mosei/Combined --output_path ./output/mosei/video 
 
+    2.2 cheavd2.0 train
+        export CUDA_VISIBLE_DEVICES=0; python start.py --no_display --videos_dir /public/home/zwchen209/CHEAVD2.0/cheavd2/MEC2017/data/train/avi --output_path ./output/cheavd2/train
 
 
 GPU-Mem 1542 MB
-PID: 233
+PID: 
 '''

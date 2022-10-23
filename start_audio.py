@@ -11,16 +11,10 @@ pbar = None
 '''
 获取视频中的音频
     以音频为准(切分出音频必定有图片)， 存放目录：./output/audio/*视频名字*/*ID*
-
 '''
-parser = argparse.ArgumentParser()
-parser.add_argument("--database", type=str, help='要处理的数据库', default='unlabel')
-# 1、unlabel，什么都不动
-# 2、mosei：需要设置路径，45行+的位置
-args = parser.parse_args()
 
 def main():
-    '''获取基本数据路径'''
+    '''获取基本数据路径，默认无标签数据'''
     # json 输出地址
     base_video_json_dir = './output/json/'
     base_audio_json_dir = './output/audio_json/'
@@ -28,7 +22,7 @@ def main():
     base_audio_dir = './output/audio/'
     base_images_dir = './output/images/'
     '''
-    # 视频源文件地址   会从这些文件夹里面查找原视频
+        视频源文件地址   会从这些文件夹里面查找原视频
         必须以  video  开头；
         当然也可以添加其他目录，添加到下面的列表就好了
     '''
@@ -43,16 +37,21 @@ def main():
     base_input_dir.append('video-v1')
     base_input_dir.append('video-v2')
 
-    # 数据库1：mosei，如果有其他数据库需要改下面的路径
-    if args.database == 'mosei':
-        # 1 mosei 数据处理的输出文件夹
-        database_output_dir = './output/mosei/video/'
+    '''
+        处理有标签数据库：会重新覆盖上面设置的那些路径
+            数据库1：   mosei
+            数据库2：   cheavd2
+    '''
+    if args.database != 'unlabel':
+        logger.info('要处理的视频【有标签】数据库为: ', args.database)
+        # 1 数据处理的输出文件夹
+        database_output_dir = args.database_output_dir
         base_video_json_dir = database_output_dir + 'json/'
         base_audio_json_dir = database_output_dir + 'audio_json/'
         base_audio_dir = database_output_dir + 'audio/'
         base_images_dir = database_output_dir + 'images/'
         # 2 视频原文件地址
-        base_input_dir = ['/public/home/zwchen209/Mosei/Combined']
+        base_input_dir = [args.base_input_dir]
 
 
     my_utils.JsonUtils.mkdir(base_audio_json_dir)
@@ -187,14 +186,31 @@ def cut(content, audio_dir):
 
 
 if __name__=='__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--database", type=str, help='要处理的数据库，默认无标签，即不额外修改地址', default='unlabel')
+    parser.add_argument("--database_output_dir", type=str, help='图片序列、音频、json文件保存的目录', default='')
+    parser.add_argument("--base_input_dir", type=str, help='数据库原始视频地址', default='')
+    args = parser.parse_args()
 
+    main()
     '''
+        conda activate tfgpu
+        
         运行方式：
         1、无标签，提取音频：
                 python start_audio.py
-        2、其他数据库：（如果增加其他数据库，需要在代码内部指导位置，46行+）
+        2、其他数据库：
             2.1 mosei:   
-                python start_audio.py --database mosei
+                python start_audio.py 
+                        --database mosei 
+                        --database_output_dir ./output/mosei/video/ 
+                        --base_input_dir /public/home/zwchen209/Mosei/Combined
+
+            2.2 cheavd 2.0:
+                === train:
+                python start_audio.py 
+                        --database cheavd2 
+                        --database_output_dir ./output/cheavd2/train/ 
+                        --base_input_dir /public/home/zwchen209/CHEAVD2.0/cheavd2/MEC2017/data/train/avi
     
     '''
