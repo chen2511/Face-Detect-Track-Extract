@@ -145,7 +145,6 @@ def main():
                         if videoWriter != None:
                             videoWriter.close()
                         
-                        sleep(5)
                         break
 
                     if frame is None:

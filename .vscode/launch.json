@@ -15,7 +15,8 @@
                 "CUDA_VISIBLE_DEVICES":"0"
             },   
             "args": [       // 命令行参数
-                "--no_display"
+                "--no_display",
+                "--videos_dir", "video_3001-4000"
             ]
         }
     ]
