@@ -333,18 +333,15 @@ if __name__ == '__main__':
     main()
 
 '''
-运行方式：
-1、无标签
-export CUDA_VISIBLE_DEVICES=0; python start.py --no_display --videos_dir video_1001-2000
-
-2、有标签
-    2.1 mosei
-        export CUDA_VISIBLE_DEVICES=0; python start.py --no_display --videos_dir /public/home/zwchen209/Mosei/Combined --output_path ./output/mosei/video 
-
-    2.2 cheavd2.0 train
-        export CUDA_VISIBLE_DEVICES=0; python start.py --no_display --videos_dir /public/home/zwchen209/CHEAVD2.0/cheavd2/MEC2017/data/train/avi --output_path ./output/cheavd2/train
-
-
 GPU-Mem 1542 MB
-PID: 
+
+conda activate tfgpu
+
+1.提取mosei:
+export CUDA_VISIBLE_DEVICES=0; python start.py --no_display --videos_dir /public/home/zwchen209/Mosei/Combined --output_path ./output/mosei/video
+2.提取cheavd2.0:
+export CUDA_VISIBLE_DEVICES=2; python start.py --no_display --videos_dir /public/home/zwchen209/CHEAVD2.0/cheavd2/MEC2017/data/dev/avi --output_path ./output/cheavd2/dev
+3.提取mspimprove
+export CUDA_VISIBLE_DEVICES=2; python start.py --no_display --videos_dir /public/home/zwchen209/MSP-IMPROV/Video/video --output_path ./output/mspimprov
+
 '''

@@ -84,6 +84,9 @@ def main():
             continue
         
         source_video = check_video(cur[:-5]+'.mp4', base_input_dir)
+        if source_video == None:
+            source_video = check_video(cur[:-5]+'.avi', base_input_dir)
+            
         if source_video == None: # 没找到原视频
             video_count += 1
             logger.error(f'[ {video_count} / {video_total} ]  {cur} 没找到原视频')
@@ -116,6 +119,17 @@ def main():
             'list': {
             }
         }
+        '''        2022-10-25 fix bug: fps修正
+            处理一个特殊情况：msp-improv中的视频文件的文件头的帧率、帧数等信息与实际的视频不一致
+            所以，为了截取音频的准确性，需要重新计算fps，即：读取视频json文件的帧数列表与头部信息的对比比例，一般来说是要除以2
+        '''
+        if args.database == 'msp-improv':
+            actrually_frames_len = len(images_info['frames'])
+            filehead_frames_len = images_info['total_frame']
+            fps_fix_rate = actrually_frames_len / filehead_frames_len
+            content['fps'] = content['fps'] * fps_fix_rate
+
+
         frames = images_info['frames']
         for frame in frames:                    # 逐帧处理
             for face in frame['face_info']:     # 处理每一帧中存在的人脸
@@ -192,6 +206,8 @@ if __name__=='__main__':
     parser.add_argument("--base_input_dir", type=str, help='数据库原始视频地址', default='')
     args = parser.parse_args()
 
+    assert args.database in ['unlabel', 'mosei', 'cheavd2', 'msp-improv']
+
     main()
     '''
         conda activate tfgpu
@@ -208,9 +224,16 @@ if __name__=='__main__':
 
             2.2 cheavd 2.0:
                 === train:
-                python start_audio.py 
-                        --database cheavd2 
-                        --database_output_dir ./output/cheavd2/train/ 
-                        --base_input_dir /public/home/zwchen209/CHEAVD2.0/cheavd2/MEC2017/data/train/avi
-    
+                python start_audio.py --database cheavd2  
+                                        --database_output_dir ./output/cheavd2/train/ 
+                                        --base_input_dir /public/home/zwchen209/CHEAVD2.0/cheavd2/MEC2017/data/train/avi
+                === dev:
+                python start_audio.py --database cheavd2  
+                                        --database_output_dir ./output/cheavd2/dev/ 
+                                        --base_input_dir /public/home/zwchen209/CHEAVD2.0/cheavd2/MEC2017/data/dev/avi
+
+            2.3 msp-improv:
+                python start_audio.py --database msp-improv  
+                                        --database_output_dir ./output/mspimprov/ 
+                                        --base_input_dir /public/home/zwchen209/MSP-IMPROV/Video/video
     '''
